@@ -1,16 +1,17 @@
 # Hospital Appointment System
 
-## Kurulum ve Çalıştırma
+## 🚀 Hızlı Başlangıç
 
-### 1. Docker ile (Önerilen ve En Kolay Yöntem)
+Bu proje, Spring Boot ve MySQL tabanlı bir randevu ve hasta takip sistemidir. Tüm ayarlar `.env` dosyasından yönetilir. Docker ile veya manuel olarak kolayca kurup çalıştırabilirsiniz.
+
+---
+
+## 1️⃣ Docker ile Kurulum (En Kolay ve Otomatik Yöntem)
 
 1. **.env dosyasını oluşturun:**
-   - Proje klasöründe `.env.example` dosyasını `.env` olarak kopyalayın.
-   - Tüm şifre, kullanıcı adı, port ve admin bilgilerini `.env` dosyasından yönetin.
-
    ```bash
    cp .env.example .env
-   # .env dosyasını açıp şifreyi ve diğer bilgileri düzenleyin
+   # .env dosyasını açıp şifre, kullanıcı adı ve port gibi bilgileri düzenleyin
    ```
 
 2. **Docker ile başlatın:**
@@ -21,60 +22,101 @@
 3. **Uygulamaya erişin:**
    - [http://localhost:8080](http://localhost:8080) (veya .env'de belirttiğiniz port)
 
-> Docker ile başlatınca MySQL ve uygulama otomatik başlar, tablolar ve demo kullanıcılar otomatik oluşur. Hiçbir manuel veritabanı işlemi gerekmez.
+> Docker ile başlatınca MySQL ve uygulama otomatik başlar, veritabanı ve tablolar otomatik oluşur. Hiçbir manuel veritabanı işlemi gerekmez.
 
 ---
 
-### 2. Manuel (Lokal) Kurulum (Geliştiriciler için)
+## 2️⃣ Manuel (Lokal) Kurulum (Geliştiriciler için)
+
+### A. Gereksinimler
+- Java 17+
+- Maven
+- MySQL (lokalde çalışır durumda)
+
+### B. Adımlar
 
 1. **MySQL'i kurun ve başlatın.**
-   - Bir MySQL sunucusu çalışıyor olmalı.
-   - `.env` dosyasındaki kullanıcı adı, şifre ve veritabanı adını MySQL'de oluşturun.
+   - `.env` dosyasındaki kullanıcı adı, şifre ve veritabanı adını MySQL'de oluşturun (veya root ile otomatik oluşmasını sağlayın).
 
-2. **application.properties ayarları:**
-   - `src/main/resources/application.properties` dosyasında tüm ayarlar `.env` üzerinden gelir.
-   - `.env` dosyanızda aşağıdaki gibi ayarlar olmalı:
-     ```
-     SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/hospital_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-     SPRING_DATASOURCE_USERNAME=your_mysql_user
-     SPRING_DATASOURCE_PASSWORD=your_mysql_password
-     MYSQL_DATABASE=hospital_db
-     SERVER_PORT=8080
-     SECURITY_USER_NAME=admin
-     SECURITY_USER_PASSWORD=admin
-     ```
-   2.1 **.env'i terminale yükleyin:**
+2. **.env dosyasını oluşturun ve düzenleyin:**
    ```bash
-      export $(grep -v '^#' .env | xargs)
-   ```
-3. **Projeyi başlatın:**
-   ```bash
-   ./mvnw spring-boot:run
-   # veya
-   mvn spring-boot:run
+   cp .env.example .env
+   # .env dosyasını açıp bilgileri doldurun
    ```
 
-4. **Uygulamaya erişin:**
+3. **Environment variable'ları terminale yükleyin:**
+   > Spring Boot, `.env` dosyasını otomatik okumaz! Değişkenleri terminal ortamına yüklemeniz gerekir.
+   ```bash
+   export $(grep -v '^#' .env | xargs)
+   ```
+
+4. **Profil seçimi:**
+   - Lokal çalıştırma için `.env` dosyanızda şu satır olmalı:
+     ```
+     SPRING_PROFILES_ACTIVE=local
+     ```
+   - Docker ile çalıştıracaksanız:
+     ```
+     SPRING_PROFILES_ACTIVE=docker
+     ```
+
+5. **Projeyi başlatın:**
+   ```bash
+   mvn clean spring-boot:run
+   # veya profil belirtmek için:
+   mvn spring-boot:run -Dspring-boot.run.profiles=local
+   ```
+
+6. **Uygulamaya erişin:**
    - [http://localhost:8080](http://localhost:8080) (veya .env'de belirttiğiniz port)
-
-> Manuel kurulumda MySQL'i ve veritabanını kendiniz oluşturmalısınız. Tablolar ve demo kullanıcılar uygulama ilk açıldığında otomatik oluşur.
 
 ---
 
-## .env.example İçeriği
+## 3️⃣ Sık Karşılaşılan Hatalar ve Çözümleri
 
+- **Hata:** `Unable to determine Dialect without JDBC metadata` veya `Failed to determine a suitable driver class`
+  - **Çözüm:**
+    - `.env` dosyasındaki değişkenleri terminale yüklediğinizden emin olun:
+      ```bash
+      export $(grep -v '^#' .env | xargs)
+      ```
+    - `mysql-connector-j` dependency'si pom.xml'de mevcut olmalı (bu projede zaten var).
+    - Profilin doğru olduğundan emin olun: `SPRING_PROFILES_ACTIVE=local`
+
+- **Hata:** `UnknownHostException: db`
+  - **Çözüm:** Yanlış profil seçilmiş olabilir. Lokal çalıştırmada `SPRING_PROFILES_ACTIVE=local` olmalı.
+
+---
+
+## 4️⃣ .env ve .env.example Dosyası
+
+`.env` dosyanız örnek olarak şöyle olmalı:
 ```
-SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/hospital_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-SPRING_DATASOURCE_USERNAME=ornek_kullanici
-SPRING_DATASOURCE_PASSWORD=ornek_sifre
-MYSQL_ROOT_PASSWORD=ornek_sifre
-MYSQL_DATABASE=ornek_db
+MYSQL_DATABASE=hospital_db
+SPRING_DATASOURCE_USERNAME=root
+SPRING_DATASOURCE_PASSWORD=123456
+MYSQL_ROOT_PASSWORD=123456
 SERVER_PORT=8080
 SECURITY_USER_NAME=admin
 SECURITY_USER_PASSWORD=admin
+SPRING_PROFILES_ACTIVE=local
 ```
 
-## Notlar
+> **Not:** Docker ile çalıştırırken `SPRING_PROFILES_ACTIVE=docker` olmalı ve `SPRING_DATASOURCE_URL` yerine sadece yukarıdaki gibi değişkenler olmalı.
+
+---
+
+## 5️⃣ Ekstra: Tek Komutla Her Şey
+
+Her yeni terminalde, hiçbir şeyi unutmak istemiyorsan:
+```bash
+export $(grep -v '^#' .env | xargs) && mvn clean spring-boot:run
+```
+
+---
+
+## 6️⃣ Geliştirici Notları
 - Tüm şifre, kullanıcı adı, port veya admin bilgilerini `.env` dosyasından güncelleyebilirsiniz.
 - Proje ilk açılışta otomatik olarak veritabanını, tabloları ve demo kullanıcıları oluşturur.
-- Docker ile kurulum önerilir, manuel kurulum ise geliştirme/test için uygundur. 
+- Docker ile kurulum önerilir, manuel kurulum ise geliştirme/test için uygundur.
+- Sorun yaşarsanız, environment variable'ların terminalde yüklü olduğundan ve doğru profili kullandığınızdan emin olun. 
