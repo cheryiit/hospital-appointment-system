@@ -6,6 +6,19 @@ Bu proje, Spring Boot ve MySQL tabanlı bir randevu ve hasta takip sistemidir. T
 
 ---
 
+# HIZLI KURULUM:
+
+**.env dosyasını oluşturun:**
+   ```bash
+   cp .env.example .env
+   # .env dosyasını açıp şifre, kullanıcı adı ve port gibi bilgileri düzenleyin
+   ```
+
+```bash
+export $(grep -v '^#' .env | xargs) && mvn clean spring-boot:run
+```
+
+
 ## 1️⃣ Docker ile Kurulum (En Kolay ve Otomatik Yöntem)
 
 1. **.env dosyasını oluşturun:**
