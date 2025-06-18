@@ -44,8 +44,9 @@
      SECURITY_USER_PASSWORD=admin
      ```
    2.1 **.env'i terminale yükleyin:**
-      - export $(grep -v '^#' .env | xargs)
-
+         ```bash
+         export $(grep -v '^#' .env | xargs)
+         ```
 3. **Projeyi başlatın:**
    ```bash
    ./mvnw spring-boot:run
