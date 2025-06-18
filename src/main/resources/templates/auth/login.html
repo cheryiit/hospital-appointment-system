@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş - Hastane Randevu Sistemi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .login-card {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(45deg, #667eea, #764ba2) !important;
+            border-bottom: none;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .demo-accounts {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .navbar {
+            background: rgba(255,255,255,0.1) !important;
+            backdrop-filter: blur(10px);
+        }
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="fas fa-hospital-symbol"></i> Hastane Randevu Sistemi
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/">
+                <i class="fas fa-home"></i> Ana Sayfa
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-md-6 col-lg-5 col-xl-4">
+            <div class="card login-card">
+                <div class="card-header text-center text-white py-4">
+                    <i class="fas fa-user-circle fa-3x mb-3"></i>
+                    <h4 class="mb-0">Giriş Yap</h4>
+                    <p class="mb-0 opacity-75">Hesabınıza erişin</p>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Error Messages -->
+                    <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <span th:text="${error}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <!-- Success Messages -->
+                    <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <span th:text="${success}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form method="post" action="/login" id="loginForm">
+                        <div class="mb-4">
+                            <label for="email" class="form-label fw-semibold">
+                                <i class="fas fa-envelope me-2"></i>Email Adresi
+                            </label>
+                            <input type="email" class="form-control form-control-lg"
+                                   id="email" name="email"
+                                   placeholder="ornek@email.com"
+                                   required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-semibold">
+                                <i class="fas fa-lock me-2"></i>Şifre
+                            </label>
+                            <div class="input-group">
+                                <input type="password" class="form-control form-control-lg"
+                                       id="password" name="password"
+                                       placeholder="••••••••"
+                                       required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">
+                                Beni hatırla
+                            </label>
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Giriş Yap
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Register Link -->
+                    <div class="text-center mb-3">
+                        <p class="mb-0">Hesabınız yok mu?</p>
+                        <a href="/register" class="text-decoration-none fw-semibold">
+                            <i class="fas fa-user-plus me-1"></i>Kayıt Olun
+                        </a>
+                    </div>
+
+                    <!-- Demo Accounts -->
+                    <div class="demo-accounts">
+                        <div class="text-center mb-2">
+                            <small class="fw-semibold text-muted">
+                                <i class="fas fa-info-circle me-1"></i>Demo Hesaplar
+                            </small>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-success btn-sm w-100"
+                                        onclick="fillLogin('hasta@hastane.com', '123456')">
+                                    <i class="fas fa-user me-1"></i>Hasta
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-info btn-sm w-100"
+                                        onclick="fillLogin('doktor@hastane.com', '123456')">
+                                    <i class="fas fa-user-md me-1"></i>Doktor
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-center mt-2">
+                            <small class="text-muted">
+                                Demo hesaplarla sistemi test edebilirsiniz
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="text-center mt-4">
+                <small class="text-white opacity-75">
+                    <i class="fas fa-shield-alt me-1"></i>
+                    Güvenli bağlantı ile korunmaktasınız
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-none" style="z-index: 9999;">
+    <div class="d-flex justify-content-center align-items-center h-100">
+        <div class="text-center text-white">
+            <div class="spinner-border mb-3" role="status">
+                <span class="visually-hidden">Yükleniyor...</span>
+            </div>
+            <p>Giriş yapılıyor...</p>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Password visibility toggle
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const password = document.getElementById('password');
+        const icon = this.querySelector('i');
+
+        if (password.type === 'password') {
+            password.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            password.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+
+    // Demo account fill
+    function fillLogin(email, password) {
+        document.getElementById('email').value = email;
+        document.getElementById('password').value = password;
+
+        // Add visual feedback
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+
+        emailInput.classList.add('border-success');
+        passwordInput.classList.add('border-success');
+
+        setTimeout(() => {
+            emailInput.classList.remove('border-success');
+            passwordInput.classList.remove('border-success');
+        }, 2000);
+    }
+
+    // Form submission with loading
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        loadingOverlay.classList.remove('d-none');
+
+        // Hide loading after 3 seconds if still visible (in case of error)
+        setTimeout(() => {
+            loadingOverlay.classList.add('d-none');
+        }, 3000);
+    });
+
+    // Auto-dismiss alerts after 5 seconds
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+
+    // Add smooth animations
+    document.addEventListener('DOMContentLoaded', function() {
+        const card = document.querySelector('.login-card');
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 100);
+    });
+
+    // Enter key support for demo buttons
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.ctrlKey) {
+            // Ctrl+Enter for patient demo
+            fillLogin('hasta@hastane.com', '123456');
+        } else if (e.key === 'Enter' && e.altKey) {
+            // Alt+Enter for doctor demo
+            fillLogin('doktor@hastane.com', '123456');
+        }
+    });
+</script>
+</body>
+</html>

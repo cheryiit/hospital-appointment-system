@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hastane Randevu Sistemi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-hospital"></i> Hastane Randevu Sistemi
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/login">Giriş</a>
+            <a class="nav-link" href="/register">Kayıt</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="hero-section text-center py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="container">
+                    <h1 class="display-4 mb-4">
+                        <i class="fas fa-hospital-alt"></i> Hastane Randevu Sistemi
+                    </h1>
+                    <p class="lead mb-4">
+                        Doktorlarınızla kolay randevu alın, sağlık durumunuzu takip edin
+                    </p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="/register" class="btn btn-light btn-lg">
+                            <i class="fas fa-user-plus"></i> Hasta Kaydı
+                        </a>
+                        <a href="/login" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-sign-in-alt"></i> Giriş Yap
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-calendar-plus fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Kolay Randevu</h5>
+                        <p class="card-text">
+                            Doktorunuzla kolayca randevu alın, tarihi ve saati seçin
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-user-md fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Uzman Doktorlar</h5>
+                        <p class="card-text">
+                            Alanında uzman doktorlarımızdan randevu alabilirsiniz
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="fas fa-notes-medical fa-3x text-info mb-3"></i>
+                        <h5 class="card-title">Hasta Takibi</h5>
+                        <p class="card-text">
+                            Geçmiş randevularınızı ve doktor notlarınızı görüntüleyin
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>Hastalar İçin</h3>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success"></i> Kolay kayıt işlemi</li>
+                        <li><i class="fas fa-check text-success"></i> Online randevu alma</li>
+                        <li><i class="fas fa-check text-success"></i> Randevu durumu takibi</li>
+                        <li><i class="fas fa-check text-success"></i> Doktor notlarını görüntüleme</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h3>Doktorlar İçin</h3>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success"></i> Randevu yönetimi</li>
+                        <li><i class="fas fa-check text-success"></i> Hasta notları ekleme</li>
+                        <li><i class="fas fa-check text-success"></i> Randevu onaylama/reddetme</li>
+                        <li><i class="fas fa-check text-success"></i> Hasta geçmişi görüntüleme</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-dark text-light py-4 mt-5">
+    <div class="container text-center">
+        <p>&copy; 2025 Hastane Randevu Sistemi. Tüm hakları saklıdır.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

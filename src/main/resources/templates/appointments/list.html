@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Randevularım - Hastane Randevu Sistemi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .status-pending { background-color: #ffc107 !important; }
+        .status-approved { background-color: #198754 !important; }
+        .status-rejected { background-color: #dc3545 !important; }
+        .status-completed { background-color: #6f42c1 !important; }
+        .status-cancelled { background-color: #6c757d !important; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-hospital"></i> Hastane Randevu Sistemi
+        </a>
+
+        <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">
+                    <i class="fas fa-user"></i>
+                    <span th:text="${currentUser.fullName}"></span>
+                </span>
+            <a class="btn btn-outline-light btn-sm" href="/logout">
+                <i class="fas fa-sign-out-alt"></i> Çıkış
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4><i class="fas fa-calendar"></i> Randevularım</h4>
+                        <div>
+                            <a th:if="${currentUser.role.name() == 'PATIENT'}"
+                               href="/appointments/new" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Yeni Randevu
+                            </a>
+                            <a href="/dashboard" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Filter -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="statusFilter" class="form-label">Durum Filtresi</label>
+                            <select class="form-select" id="statusFilter" onchange="filterByStatus()">
+                                <option value="">Tümü</option>
+                                <option th:each="status : ${statuses}"
+                                        th:value="${status.name()}"
+                                        th:text="${status.displayName}"
+                                        th:selected="${selectedStatus == status.name()}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div th:if="${appointments.empty}" class="text-center text-muted py-5">
+                        <i class="fas fa-calendar-times fa-4x mb-3"></i>
+                        <h5>Randevu bulunamadı</h5>
+                        <p>Seçili filtrelere uygun randevu bulunmuyor.</p>
+                        <a th:if="${currentUser.role.name() == 'PATIENT'}"
+                           href="/appointments/new" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Yeni Randevu Al
+                        </a>
+                    </div>
+
+                    <div th:if="${!appointments.empty}" class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th th:if="${currentUser.role.name() == 'PATIENT'}">Doktor</th>
+                                <th th:if="${currentUser.role.name() == 'DOCTOR'}">Hasta</th>
+                                <th>Tarih & Saat</th>
+                                <th>Durum</th>
+                                <th>Açıklama</th>
+                                <th>İşlemler</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="appointment : ${appointments}">
+                                <td th:if="${currentUser.role.name() == 'PATIENT'}">
+                                    <strong th:text="${appointment.doctor.fullName}"></strong><br>
+                                    <small class="text-muted" th:text="${appointment.doctor.specialization}"></small>
+                                </td>
+                                <td th:if="${currentUser.role.name() == 'DOCTOR'}">
+                                    <strong th:text="${appointment.patient.fullName}"></strong><br>
+                                    <small class="text-muted" th:text="${appointment.patient.phone}"></small>
+                                </td>
+                                <td th:text="${#temporals.format(appointment.appointmentDateTime, 'dd.MM.yyyy HH:mm')}"></td>
+                                <td>
+                                            <span th:class="'badge status-' + ${appointment.status.name().toLowerCase()}"
+                                                  th:text="${appointment.status.displayName}"></span>
+                                </td>
+                                <td>
+                                    <span th:text="${appointment.description}" th:if="${appointment.description}"></span>
+                                    <span th:unless="${appointment.description}" class="text-muted">-</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/appointments/{id}(id=${appointment.id})}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> Detay
+                                    </a>
+
+                                    <!-- Patient Actions -->
+                                    <div th:if="${currentUser.role.name() == 'PATIENT'}">
+                                        <button th:if="${appointment.status.name() == 'PENDING' or appointment.status.name() == 'APPROVED'}"
+                                                class="btn btn-sm btn-outline-danger ms-1"
+                                                onclick="cancelAppointment([[${appointment.id}]])">
+                                            <i class="fas fa-times"></i> İptal
+                                        </button>
+                                    </div>
+
+                                    <!-- Doctor Actions -->
+                                    <div th:if="${currentUser.role.name() == 'DOCTOR'}">
+                                        <button th:if="${appointment.status.name() == 'PENDING'}"
+                                                class="btn btn-sm btn-success ms-1"
+                                                onclick="approveAppointment([[${appointment.id}]])">
+                                            <i class="fas fa-check"></i> Onayla
+                                        </button>
+                                        <button th:if="${appointment.status.name() == 'PENDING'}"
+                                                class="btn btn-sm btn-danger ms-1"
+                                                onclick="rejectAppointment([[${appointment.id}]])">
+                                            <i class="fas fa-times"></i> Reddet
+                                        </button>
+                                        <button th:if="${appointment.status.name() == 'APPROVED'}"
+                                                class="btn btn-sm btn-info ms-1"
+                                                onclick="completeAppointment([[${appointment.id}]])">
+                                            <i class="fas fa-check-circle"></i> Tamamla
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Randevu İptal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Randevunuzu iptal etmek istediğinizden emin misiniz?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                <form id="cancelForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">İptal Et</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="approveModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Randevu Onayla</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="approveForm" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="approveNotes" class="form-label">Doktor Notları</label>
+                        <textarea class="form-control" id="approveNotes" name="doctorNotes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                    <button type="submit" class="btn btn-success">Onayla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Randevu Reddet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="rejectForm" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="rejectNotes" class="form-label">Ret Nedeni</label>
+                        <textarea class="form-control" id="rejectNotes" name="doctorNotes" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                    <button type="submit" class="btn btn-danger">Reddet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="completeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Randevu Tamamla</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="completeForm" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="completeNotes" class="form-label">Muayene Notları</label>
+                        <textarea class="form-control" id="completeNotes" name="doctorNotes" rows="4"
+                                  placeholder="Muayene sonucu ve önerilerinizi yazınız..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                    <button type="submit" class="btn btn-info">Tamamla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function filterByStatus() {
+        const status = document.getElementById('statusFilter').value;
+        const url = new URL(window.location);
+        if (status) {
+            url.searchParams.set('status', status);
+        } else {
+            url.searchParams.delete('status');
+        }
+        window.location = url;
+    }
+
+    function cancelAppointment(appointmentId) {
+        document.getElementById('cancelForm').action = '/appointments/' + appointmentId + '/cancel';
+        new bootstrap.Modal(document.getElementById('cancelModal')).show();
+    }
+
+    function approveAppointment(appointmentId) {
+        document.getElementById('approveForm').action = '/appointments/' + appointmentId + '/approve';
+        new bootstrap.Modal(document.getElementById('approveModal')).show();
+    }
+
+    function rejectAppointment(appointmentId) {
+        document.getElementById('rejectForm').action = '/appointments/' + appointmentId + '/reject';
+        new bootstrap.Modal(document.getElementById('rejectModal')).show();
+    }
+
+    function completeAppointment(appointmentId) {
+        document.getElementById('completeForm').action = '/appointments/' + appointmentId + '/complete';
+        new bootstrap.Modal(document.getElementById('completeModal')).show();
+    }
+</script>
+</body>
+</html>
