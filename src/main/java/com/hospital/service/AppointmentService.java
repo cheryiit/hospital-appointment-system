@@ -104,7 +104,7 @@ public class AppointmentService {
         System.out.println("Doktorun toplam randevu sayısı: " + doctorAppointments.size());
 
         List<Appointment> activeDoctorAppointments = doctorAppointments.stream()
-                .filter(appointment -> !appointment.getStatus().equals(AppointmentStatus.CANCELLED))
+                .filter(appointment -> appointment.getStatus().equals(AppointmentStatus.PENDING) || appointment.getStatus().equals(AppointmentStatus.APPROVED))
                 .toList();
 
         System.out.println("Doktorun aktif randevu sayısı: " + activeDoctorAppointments.size());
@@ -150,7 +150,7 @@ public class AppointmentService {
         System.out.println("Hastanın toplam randevu sayısı: " + patientAppointments.size());
 
         List<Appointment> activePatientAppointments = patientAppointments.stream()
-                .filter(appointment -> !appointment.getStatus().equals(AppointmentStatus.CANCELLED))
+                .filter(appointment -> appointment.getStatus().equals(AppointmentStatus.PENDING) || appointment.getStatus().equals(AppointmentStatus.APPROVED))
                 .toList();
 
         System.out.println("Hastanın aktif randevu sayısı: " + activePatientAppointments.size());

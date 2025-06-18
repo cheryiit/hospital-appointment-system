@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.web.csrf.CsrfToken;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 public class DashboardController {
@@ -24,7 +26,9 @@ public class DashboardController {
      * Ana dashboard sayfası
      */
     @GetMapping("/dashboard")
-    public String dashboard(HttpSession session, Model model) {
+    public String dashboard(HttpSession session, Model model, HttpServletRequest request) {
+        CsrfToken csrfToken = (CsrfToken) request.getAttribute("_csrf");
+        model.addAttribute("_csrf", csrfToken);
         User currentUser = (User) session.getAttribute("currentUser");
 
         System.out.println("Dashboard request received");
@@ -69,67 +73,5 @@ public class DashboardController {
         }
 
         return "redirect:/";
-    }
-
-    /**
-     * İstatistikler sayfası (SADECE DOKTORLAR İÇİN)
-     */
-    @GetMapping("/dashboard/stats")
-    public String stats(HttpSession session, Model model) {
-        User currentUser = (User) session.getAttribute("currentUser");
-
-        System.out.println("=== STATS PAGE REQUEST ===");
-        System.out.println("Current user: " + (currentUser != null ? currentUser.getEmail() : "null"));
-
-        if (currentUser == null) {
-            System.out.println("No user in session, redirecting to login");
-            return "redirect:/login";
-        }
-
-        System.out.println("User role: " + currentUser.getRole());
-
-        // SADECE DOKTORLAR ERİŞEBİLİR
-        if (currentUser.getRole() != Role.DOCTOR) {
-            System.out.println("User is not doctor, redirecting to dashboard");
-            return "redirect:/dashboard";
-        }
-
-        System.out.println("Doctor authorized, loading stats...");
-
-        try {
-            // İstatistik verilerini topla
-            long totalPatients = userService.getTotalPatients();
-            long totalDoctors = userService.getTotalDoctors();
-            long totalAppointments = appointmentService.getTotalAppointments();
-            long pendingAppointments = appointmentService.getPendingAppointments();
-            long approvedAppointments = appointmentService.getApprovedAppointments();
-            long completedAppointments = appointmentService.getCompletedAppointments();
-
-            System.out.println("Stats loaded:");
-            System.out.println("  Total Patients: " + totalPatients);
-            System.out.println("  Total Doctors: " + totalDoctors);
-            System.out.println("  Total Appointments: " + totalAppointments);
-            System.out.println("  Pending: " + pendingAppointments);
-            System.out.println("  Approved: " + approvedAppointments);
-            System.out.println("  Completed: " + completedAppointments);
-
-            // Model'e verileri ekle
-            model.addAttribute("currentUser", currentUser);
-            model.addAttribute("totalPatients", totalPatients);
-            model.addAttribute("totalDoctors", totalDoctors);
-            model.addAttribute("totalAppointments", totalAppointments);
-            model.addAttribute("pendingAppointments", pendingAppointments);
-            model.addAttribute("approvedAppointments", approvedAppointments);
-            model.addAttribute("completedAppointments", completedAppointments);
-
-            System.out.println("Returning dashboard/stats template");
-            return "dashboard/stats";
-
-        } catch (Exception e) {
-            System.out.println("Error loading stats: " + e.getMessage());
-            e.printStackTrace();
-            model.addAttribute("error", "İstatistikler yüklenirken hata oluştu: " + e.getMessage());
-            return "dashboard/doctor-dashboard";
-        }
     }
 }

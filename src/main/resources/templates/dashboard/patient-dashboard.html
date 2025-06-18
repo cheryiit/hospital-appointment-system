@@ -16,6 +16,7 @@
     </style>
 </head>
 <body>
+<th:block th:if="${currentUser == null}"><script>window.location='/login';</script></th:block>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
         <a class="navbar-brand" href="/">
@@ -164,7 +165,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr th:each="appointment : ${myAppointments}" th:if="${appointmentStat.index < 5}">
+                                        <tr th:each="appointment, appointmentStat : ${myAppointments}" th:if="${appointmentStat.index < 5}">
                                             <td>
                                                 <strong th:text="${appointment.doctor.fullName}"></strong><br>
                                                 <small class="text-muted" th:text="${appointment.doctor.specialization}"></small>
@@ -181,7 +182,7 @@
                                                 </a>
                                                 <button th:if="${appointment.status.name() == 'PENDING' or appointment.status.name() == 'APPROVED'}"
                                                         class="btn btn-sm btn-outline-danger ms-1"
-                                                        onclick="cancelAppointment([[${appointment.id}]])">
+                                                        th:attr="data-bs-toggle='modal', data-bs-target='#cancelModal-' + ${appointment.id}">
                                                     <i class="fas fa-times"></i> İptal
                                                 </button>
                                             </td>
@@ -204,91 +205,28 @@
     </div>
 </div>
 
-<!-- Cancel Appointment Modal -->
-<div class="modal fade" id="cancelModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Randevu İptal</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                Randevunuzu iptal etmek istediğinizden emin misiniz?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                <form id="cancelForm" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-danger">İptal Et</button>
-                </form>
+<!-- Tablodan sonra, her randevu için benzersiz modal ve form -->
+<div th:each="appointment : ${myAppointments}">
+    <div class="modal fade" th:id="'cancelModal-' + ${appointment.id}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Randevu İptal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Randevunuzu iptal etmek istediğinizden emin misiniz?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                    <form th:action="@{'/appointments/' + ${appointment.id} + '/cancel'}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">İptal Et</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    function cancelAppointment(appointmentId) {
-        document.getElementById('cancelForm').action = '/appointments/' + appointmentId + '/cancel';
-        new bootstrap.Modal(document.getElementById('cancelModal')).show();
-    }
-</script>
-</body>
-</html>-width, initial-scale=1.0">
-<title th:text="${title != null ? title + ' - Hastane Randevu Sistemi' : 'Hastane Randevu Sistemi'}"></title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<style>
-    .navbar-brand {
-        font-weight: bold;
-    }
-    .card {
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        border: none;
-    }
-    .btn-primary {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
-    .status-pending { color: #ffc107; }
-    .status-approved { color: #198754; }
-    .status-rejected { color: #dc3545; }
-    .status-completed { color: #6f42c1; }
-    .status-cancelled { color: #6c757d; }
-    .sidebar {
-        min-height: calc(100vh - 56px);
-        background-color: #f8f9fa;
-    }
-    .main-content {
-        min-height: calc(100vh - 56px);
-    }
-</style>
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-        <a class="navbar-brand" href="/">
-            <i class="fas fa-hospital"></i> Hastane Randevu Sistemi
-        </a>
-
-        <div class="navbar-nav ms-auto" th:if="${session.currentUser != null}">
-                <span class="navbar-text me-3">
-                    <i class="fas fa-user"></i>
-                    Hoş geldiniz, <span th:text="${session.currentUser.fullName}"></span>
-                    (<span th:text="${session.currentUser.role.displayName}"></span>)
-                </span>
-            <a class="btn btn-outline-light btn-sm" href="/logout">
-                <i class="fas fa-sign-out-alt"></i> Çıkış
-            </a>
-        </div>
-
-        <div class="navbar-nav ms-auto" th:if="${session.currentUser == null}">
-            <a class="nav-link" href="/login">Giriş</a>
-            <a class="nav-link" href="/register">Kayıt</a>
-        </div>
-    </div>
-</nav>
-
-<div th:fragment="content"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

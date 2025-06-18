@@ -8,11 +8,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .status-pending { background-color: #ffc107 !important; }
-        .status-approved { background-color: #198754 !important; }
-        .status-rejected { background-color: #dc3545 !important; }
-        .status-completed { background-color: #6f42c1 !important; }
-        .status-cancelled { background-color: #6c757d !important; }
+        .status-pending { background-color: #ffc107 !important; color: #212529 !important; }
+        .status-approved { background-color: #198754 !important; color: #fff !important; }
+        .status-rejected { background-color: #dc3545 !important; color: #fff !important; }
+        .status-completed { background-color: #6f42c1 !important; color: #fff !important; }
+        .status-cancelled { background-color: #6c757d !important; color: #fff !important; }
     </style>
 </head>
 <body>
@@ -90,7 +90,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="appointment : ${appointments}">
+                            <tr th:each="appointment, appointmentStat : ${appointments}">
                                 <td th:if="${currentUser.role.name() == 'PATIENT'}">
                                     <strong th:text="${appointment.doctor.fullName}"></strong><br>
                                     <small class="text-muted" th:text="${appointment.doctor.specialization}"></small>
@@ -101,8 +101,7 @@
                                 </td>
                                 <td th:text="${#temporals.format(appointment.appointmentDateTime, 'dd.MM.yyyy HH:mm')}"></td>
                                 <td>
-                                            <span th:class="'badge status-' + ${appointment.status.name().toLowerCase()}"
-                                                  th:text="${appointment.status.displayName}"></span>
+                                    <span th:class="'badge status-' + ${appointment.status.name().toLowerCase()}" th:text="${appointment.status.displayName}"></span>
                                 </td>
                                 <td>
                                     <span th:text="${appointment.description}" th:if="${appointment.description}"></span>
@@ -113,16 +112,13 @@
                                        class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-eye"></i> Detay
                                     </a>
-
-                                    <!-- Patient Actions -->
                                     <div th:if="${currentUser.role.name() == 'PATIENT'}">
                                         <button th:if="${appointment.status.name() == 'PENDING' or appointment.status.name() == 'APPROVED'}"
                                                 class="btn btn-sm btn-outline-danger ms-1"
-                                                onclick="cancelAppointment([[${appointment.id}]])">
+                                                th:attr="data-bs-toggle='modal', data-bs-target='#cancelModal-' + ${appointment.id}">
                                             <i class="fas fa-times"></i> İptal
                                         </button>
                                     </div>
-
                                     <!-- Doctor Actions -->
                                     <div th:if="${currentUser.role.name() == 'DOCTOR'}">
                                         <button th:if="${appointment.status.name() == 'PENDING'}"
@@ -137,7 +133,7 @@
                                         </button>
                                         <button th:if="${appointment.status.name() == 'APPROVED'}"
                                                 class="btn btn-sm btn-info ms-1"
-                                                onclick="completeAppointment([[${appointment.id}]])">
+                                                th:attr="data-bs-toggle='modal', data-bs-target='#completeModal-' + ${appointment.id}">
                                             <i class="fas fa-check-circle"></i> Tamamla
                                         </button>
                                     </div>
@@ -153,25 +149,29 @@
 </div>
 
 <!-- Modals -->
-<div class="modal fade" id="cancelModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Randevu İptal</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                Randevunuzu iptal etmek istediğinizden emin misiniz?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                <form id="cancelForm" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-danger">İptal Et</button>
-                </form>
+<tr th:each="appointment : ${appointments}">
+    <td colspan="6">
+        <div class="modal fade" th:id="'cancelModal-' + ${appointment.id}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Randevu İptal</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        Randevunuzu iptal etmek istediğinizden emin misiniz?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                        <form th:action="@{'/appointments/' + ${appointment.id} + '/cancel'}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-danger">İptal Et</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
+    </td>
+</tr>
 
 <div class="modal fade" id="approveModal" tabindex="-1">
     <div class="modal-dialog">
@@ -219,26 +219,28 @@
     </div>
 </div>
 
-<div class="modal fade" id="completeModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Randevu Tamamla</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="completeForm" method="post">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="completeNotes" class="form-label">Muayene Notları</label>
-                        <textarea class="form-control" id="completeNotes" name="doctorNotes" rows="4"
-                                  placeholder="Muayene sonucu ve önerilerinizi yazınız..."></textarea>
+<div th:each="appointment : ${appointments}">
+    <div class="modal fade" th:id="'completeModal-' + ${appointment.id}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Randevu Tamamla</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{'/appointments/' + ${appointment.id} + '/complete'}" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Muayene Notları</label>
+                            <textarea class="form-control" name="doctorNotes" rows="4"
+                                      placeholder="Muayene sonucu ve önerilerinizi yazınız..."></textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                    <button type="submit" class="btn btn-info">Tamamla</button>
-                </div>
-            </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                        <button type="submit" class="btn btn-info">Tamamla</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -256,11 +258,6 @@
         window.location = url;
     }
 
-    function cancelAppointment(appointmentId) {
-        document.getElementById('cancelForm').action = '/appointments/' + appointmentId + '/cancel';
-        new bootstrap.Modal(document.getElementById('cancelModal')).show();
-    }
-
     function approveAppointment(appointmentId) {
         document.getElementById('approveForm').action = '/appointments/' + appointmentId + '/approve';
         new bootstrap.Modal(document.getElementById('approveModal')).show();
@@ -269,11 +266,6 @@
     function rejectAppointment(appointmentId) {
         document.getElementById('rejectForm').action = '/appointments/' + appointmentId + '/reject';
         new bootstrap.Modal(document.getElementById('rejectModal')).show();
-    }
-
-    function completeAppointment(appointmentId) {
-        document.getElementById('completeForm').action = '/appointments/' + appointmentId + '/complete';
-        new bootstrap.Modal(document.getElementById('completeModal')).show();
     }
 </script>
 </body>

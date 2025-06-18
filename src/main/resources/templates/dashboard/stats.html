@@ -1,0 +1,8 @@
+<th:block th:if="${currentUser == null}"><script>window.location='/login';</script></th:block>
+<!-- Tüm istatistik alanlarında null kontrolü -->
+<span th:text="${totalPatients != null ? totalPatients : 0}"></span>
+<span th:text="${totalDoctors != null ? totalDoctors : 0}"></span>
+<span th:text="${totalAppointments != null ? totalAppointments : 0}"></span>
+<span th:text="${pendingAppointments != null ? pendingAppointments : 0}"></span>
+<span th:text="${approvedAppointments != null ? approvedAppointments : 0}"></span>
+<span th:text="${completedAppointments != null ? completedAppointments : 0}"></span> 

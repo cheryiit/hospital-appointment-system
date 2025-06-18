@@ -99,10 +99,9 @@ MYSQL_ROOT_PASSWORD=123456
 SERVER_PORT=8080
 SECURITY_USER_NAME=admin
 SECURITY_USER_PASSWORD=admin
-SPRING_PROFILES_ACTIVE=local
 ```
 
-> **Not:** Docker ile çalıştırırken `SPRING_PROFILES_ACTIVE=docker` olmalı ve `SPRING_DATASOURCE_URL` yerine sadece yukarıdaki gibi değişkenler olmalı.
+> **Not:** Docker ile çalıştırırken `SPRING_PROFILES_ACTIVE` değişkenini .env dosyasına yazmanıza gerek yoktur. docker-compose otomatik olarak doğru profili kullanır. Sadece manuel çalıştırmada terminalden export edebilirsiniz.
 
 ---
 
